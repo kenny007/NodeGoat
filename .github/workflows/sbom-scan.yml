@@ -22,7 +22,7 @@ jobs:
           run: grype sbom:sbom-nodegoat.json --fail-on critical
 
         - name: Upload SBOM Artifact
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: nodegoat-sbom
             path: sbom-nodegoat.json
