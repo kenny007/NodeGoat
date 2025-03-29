@@ -1,0 +1,28 @@
+name: Generate SBOM and Scan for Vulnerabilities
+
+on: [push, pull_request]
+
+jobs:
+    sbom-scan:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout Code
+          uses: actions/checkout@v3
+
+        - name: Install Syft & Grype
+          run: |
+            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+        - name: Generate SBOM (SPDX format)
+          run: syft dir:. -o spdx-json > sbom-nodegoat.json
+
+        - name: Scan for Vulnerabilities
+          run: grype sbom:sbom-nodegoat.json --fail-on critical
+
+        - name: Upload SBOM Artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: nodegoat-sbom
+            path: sbom-nodegoat.json
