@@ -29,8 +29,7 @@ jobs:
           curl -X POST "$DTRACK_BASE_URL/api/v1/bom" \
             -H "X-Api-Key: $DTRACK_API_KEY" \
             -H "Content-Type: multipart/form-data" \
-            -F "projectName=nodegoat" \
-            -F "projectVersion=1.0.0" \
+            -F "project=56fc91a5-a0ea-447d-9e7e-0b88f2f37509" \
             -F "bom=@sbom-cyclonedx.json"
 
       - name: Upload SBOM Artifact
