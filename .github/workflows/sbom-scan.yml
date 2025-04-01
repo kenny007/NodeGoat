@@ -26,11 +26,13 @@ jobs:
           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
           DTRACK_BASE_URL: ${{ secrets.DTRACK_BASE_URL }}
         run: |
+          echo "Uploading SBOM to $DTRACK_BASE_URL/api/api/v1/bom"
           curl -v -X POST "$DTRACK_BASE_URL/api/api/v1/bom" \
             -H "X-Api-Key: $DTRACK_API_KEY" \
             -H "Content-Type: multipart/form-data" \
             -F "projectName=nodegoat" \
             -F "projectVersion=1.0.0" \
+            -F "autoCreate=true" \
             -F "bom=@sbom-cyclonedx.json"
 
       - name: Upload SBOM Artifact
