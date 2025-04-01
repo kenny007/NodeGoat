@@ -1,28 +1,40 @@
-name: Generate SBOM and Scan for Vulnerabilities
+name: Generate SBOM and Upload to Dependency-Track
 
 on: [push, pull_request]
 
 jobs:
-    sbom-scan:
-        runs-on: ubuntu-latest
+  sbom-scan:
+    runs-on: ubuntu-latest
 
-        steps:
-        - name: Checkout Code
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-        - name: Install Syft & Grype
-          run: |
-            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+      - name: Install Syft & Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
-        - name: Generate SBOM (SPDX format)
-          run: syft dir:. -o spdx-json > sbom-nodegoat.json
+      - name: Generate SBOM (CycloneDX format)
+        run: syft dir:. -o cyclonedx-json > sbom-cyclonedx.json
 
-        - name: Scan for Vulnerabilities
-          run:  grype sbom:sbom-nodegoat.json || echo "Vulnerabilities found, but continuing"
+      - name: Scan with Grype for Vulnerabilities
+        run: grype sbom:sbom-cyclonedx.json || echo "Vulnerabilities found, but continuing"
 
-        - name: Upload SBOM Artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: nodegoat-sbom
-            path: sbom-nodegoat.json
+      - name: Upload CycloneDX SBOM to Dependency-Track
+        env:
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_BASE_URL: ${{ secrets.DTRACK_BASE_URL }}
+        run: |
+          curl -X POST "$DTRACK_BASE_URL/api/v1/bom" \
+            -H "X-Api-Key: $DTRACK_API_KEY" \
+            -H "Content-Type: multipart/form-data" \
+            -F "projectName=nodegoat" \
+            -F "projectVersion=1.0.0" \
+            -F "bom=@sbom-cyclonedx.json"
+
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodegoat-sbom
+          path: sbom-cyclonedx.json
