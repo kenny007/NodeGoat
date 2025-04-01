@@ -21,7 +21,7 @@ jobs:
       - name: Scan with Grype for Vulnerabilities
         run: grype sbom:sbom-cyclonedx.json || echo "Vulnerabilities found, but continuing"
 
-      - name: Upload CycloneDX SBOM to Dependency-Track
+      - name: Upload CycloneDX SBOM to Dependency-Track Test
         env:
           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
           DTRACK_BASE_URL: ${{ secrets.DTRACK_BASE_URL }}
