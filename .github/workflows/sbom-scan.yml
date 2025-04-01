@@ -26,6 +26,7 @@ jobs:
           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
           DTRACK_BASE_URL: ${{ secrets.DTRACK_BASE_URL }}
         run: |
+          echo "Uploading SBOM to $DTRACK_BASE_URL/api/v1/bom"
           curl -X POST "$DTRACK_BASE_URL/api/v1/bom" \
             -H "X-Api-Key: $DTRACK_API_KEY" \
             -H "Content-Type: multipart/form-data" \
