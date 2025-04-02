@@ -61,7 +61,17 @@ jobs:
         run: sbom-scorecard score sbom-cyclonedx.xml
 
       - name: Scan with Grype for Vulnerabilities
-        run: grype sbom:sbom-cyclonedx.json || echo "Vulnerabilities found, but continuing"
+        run: grype sbom:sbom-cyclonedx.json -o json > grype-results.json || echo "Vulnerabilities found, but continuing"
+
+      - name: Conditional Ticket Creation for Critical Vulns
+        if: always()
+        run: |
+          criticals=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' grype-results.json)
+          if [ "$criticals" -gt 0 ]; then
+            echo "[Simulated] Ticket created for $criticals critical vulnerabilities found in SBOM."
+          else
+            echo "No critical vulnerabilities found."
+          fi
 
       - name: Upload CycloneDX JSON SBOM to Dependency-Track
         env:
