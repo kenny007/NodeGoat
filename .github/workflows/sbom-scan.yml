@@ -26,13 +26,21 @@ jobs:
 
       - name: Install CycloneDX CLI
         run: |
-          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
-          mv cyclonedx-linux-x64 cyclonedx-cli
+          curl -sSL -o cyclonedx-cli https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
           chmod +x cyclonedx-cli
-
+    
       - name: Sign SBOM (CycloneDX XML)
         run: |
           ./cyclonedx-cli sign bom sbom-cyclonedx.xml --key-file=private.key
+
+      - name: Install SBOM Scorecard
+        run: |
+          curl -sSL -o sbom-scorecard https://github.com/eBay/sbom-scorecard/releases/download/v0.0.7/sbom-scorecard-linux-amd64
+          chmod +x sbom-scorecard
+          mv sbom-scorecard /usr/local/bin/
+  
+      - name: Evaluate SBOM Quality
+        run: sbom-scorecard score sbom-cyclonedx.xml
 
       - name: Scan with Grype for Vulnerabilities
         run: grype sbom:sbom-cyclonedx.json || echo "Vulnerabilities found, but continuing"
