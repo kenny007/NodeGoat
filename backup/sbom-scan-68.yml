@@ -17,8 +17,8 @@ jobs:
 
       - name: Generate SBOMs (CycloneDX JSON & XML)
         run: |
-          syft dir:. -o cyclonedx-json --catalogers all --scope all-layers > sbom-cyclonedx.json
-          syft dir:. -o cyclonedx-xml --catalogers all --scope all-layers > sbom-cyclonedx.xml
+          syft dir:. -o cyclonedx-json > sbom-cyclonedx.json
+          syft dir:. -o cyclonedx-xml > sbom-cyclonedx.xml
 
       - name: Decode Private Key
         run: |
@@ -28,14 +28,6 @@ jobs:
         run: |
           curl -sSL -o cyclonedx-cli https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
           chmod +x cyclonedx-cli
-
-      - name: Annotate SBOM with Tool Info (for Scorecard)
-        run: |
-          ./cyclonedx-cli annotate sbom-cyclonedx.xml \
-            --tool-name="Syft" \
-            --tool-version="$(syft version | head -n 1 | awk '{print $3}')" \
-            --output-format=xml > enriched-sbom.xml
-          mv enriched-sbom.xml sbom-cyclonedx.xml
 
       - name: Sign SBOM (CycloneDX XML)
         run: |
