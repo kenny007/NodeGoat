@@ -20,6 +20,21 @@ jobs:
           syft dir:. -o cyclonedx-json --catalogers all --scope all-layers > sbom-cyclonedx.json
           syft dir:. -o cyclonedx-xml --catalogers all --scope all-layers > sbom-cyclonedx.xml
 
+      - name: Download Previous SBOM Artifact (if exists)
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: nodegoat-sboms
+          path: previous_sbom
+
+      - name: Diff SBOMs (if previous exists)
+        run: |
+          if [ -f previous_sbom/sbom-cyclonedx.json ]; then
+            cyclonedx diff --input-files previous_sbom/sbom-cyclonedx.json sbom-cyclonedx.json --input-format json
+          else
+            echo "No previous SBOM to diff against."
+          fi
+
       - name: Decode Private Key
         run: |
           echo "${{ secrets.SBOM_PRIVATE_KEY }}" | base64 -d > private.key
