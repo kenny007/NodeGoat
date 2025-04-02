@@ -26,7 +26,7 @@ jobs:
 
       - name: Install CycloneDX CLI
         run: |
-          curl -sSL -o cyclonedx-cli https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
+          curl -sSL -o cyclonedx-cli https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.2/cyclonedx-linux-x64
           chmod +x cyclonedx-cli
 
       - name: Annotate SBOM with Tool Info (for Scorecard)
