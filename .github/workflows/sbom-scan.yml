@@ -69,3 +69,22 @@ jobs:
           path: |
             sbom-cyclonedx.xml
             sbom-cyclonedx.json
+
+      - name: Generate Provenance (SLSA-style attestation)
+        run: |
+          echo '{
+            "builder": "github-actions",
+            "buildType": "https://slsa.dev/types/github-actions",
+            "buildConfig": {
+              "repo": "${{ github.repository }}",
+              "commit": "${{ github.sha }}",
+              "workflow": "${{ github.workflow }}",
+              "run_id": "${{ github.run_id }}"
+            }
+          }' > provenance.json
+
+      - name: Upload Provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance
+          path: provenance.json
