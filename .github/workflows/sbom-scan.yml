@@ -26,20 +26,21 @@ jobs:
 
       - name: Install CycloneDX CLI
         run: |
-          curl -sSL -o cyclonedx-cli https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
-          chmod +x cyclonedx-cli
+          curl -sSL -o cyclonedx https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.2/cyclonedx-linux-x64
+          chmod +x cyclonedx
+          sudo mv cyclonedx /usr/local/bin/
 
-      - name: Annotate SBOM with Tool Info (for Scorecard)
+      - name: Add Tool Info to SBOM (for Scorecard)
         run: |
-          ./cyclonedx-cli bom annotate --input-file sbom-cyclonedx.xml \
-            --tool-name="Syft" \
-            --tool-version="$(syft version | head -n 1 | awk '{print $3}')" \
-            --output-format=xml > enriched-sbom.xml
+          cyclonedx add --input-file sbom-cyclonedx.xml \
+            --tool Syft \
+            --tool-version "$(syft version | head -n 1 | awk '{print $3}')" \
+            --output-format xml > enriched-sbom.xml
           mv enriched-sbom.xml sbom-cyclonedx.xml
 
       - name: Sign SBOM (CycloneDX XML)
         run: |
-          ./cyclonedx-cli sign bom sbom-cyclonedx.xml --key-file=private.key
+          cyclonedx sign --input-file sbom-cyclonedx.xml --key-file=private.key
 
       - name: Install Go and SBOM Scorecard from Source
         run: |
