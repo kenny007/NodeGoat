@@ -24,6 +24,12 @@ jobs:
         run: |
           echo "${{ secrets.SBOM_PRIVATE_KEY }}" | base64 -d > private.key
 
+      - name: Install CycloneDX CLI
+        run: |
+          curl -sSL -o cyclonedx https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.2/cyclonedx-linux-x64
+          chmod +x cyclonedx
+          sudo mv cyclonedx /usr/local/bin/
+
       - name: Sign SBOM (CycloneDX XML)
         run: |
           cyclonedx sign --input-file sbom-cyclonedx.xml --key-file=private.key
