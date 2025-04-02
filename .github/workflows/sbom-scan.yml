@@ -24,20 +24,6 @@ jobs:
         run: |
           echo "${{ secrets.SBOM_PRIVATE_KEY }}" | base64 -d > private.key
 
-      - name: Install CycloneDX CLI
-        run: |
-          curl -sSL -o cyclonedx https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.2/cyclonedx-linux-x64
-          chmod +x cyclonedx
-          sudo mv cyclonedx /usr/local/bin/
-
-      - name: Add Tool Info to SBOM (for Scorecard)
-        run: |
-          cyclonedx add --input-file sbom-cyclonedx.xml \
-            --tool Syft \
-            --tool-version "$(syft version | head -n 1 | awk '{print $3}')" \
-            --output-format xml > enriched-sbom.xml
-          mv enriched-sbom.xml sbom-cyclonedx.xml
-
       - name: Sign SBOM (CycloneDX XML)
         run: |
           cyclonedx sign --input-file sbom-cyclonedx.xml --key-file=private.key
