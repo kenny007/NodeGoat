@@ -35,14 +35,6 @@ jobs:
             echo "No previous SBOM to diff against."
           fi
 
-      - name: Diff SBOMs (if previous exists)
-        run: |
-          if [ -f previous_sbom/sbom-cyclonedx.json ]; then
-            cyclonedx diff --input-files previous_sbom/sbom-cyclonedx.json sbom-cyclonedx.json --input-format json
-          else
-            echo "No previous SBOM to diff against."
-          fi
-
       - name: Decode Private Key
         run: |
           echo "${{ secrets.SBOM_PRIVATE_KEY }}" | base64 -d > private.key
