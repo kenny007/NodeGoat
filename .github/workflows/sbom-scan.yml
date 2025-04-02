@@ -26,13 +26,13 @@ jobs:
 
       - name: Install CycloneDX CLI
         run: |
-          curl -sSL -o cyclonedx https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.2/cyclonedx-linux-x64
+          curl -sSL -o cyclonedx https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.25.0/cyclonedx-linux-x64
           chmod +x cyclonedx
-          sudo mv cyclonedx /usr/local/bin/
+          sudo mv cyclonedx /usr/local/bin/cyclonedx
 
       - name: Sign SBOM (CycloneDX XML)
         run: |
-          cyclonedx sign --input-file sbom-cyclonedx.xml --key-file=private.key
+          cyclonedx sign bom sbom-cyclonedx.xml --key-file=private.key
 
       - name: Install Go and SBOM Scorecard from Source
         run: |
