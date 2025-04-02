@@ -37,7 +37,7 @@ jobs:
         run: |
           curl -sSL -o sbom-scorecard https://github.com/eBay/sbom-scorecard/releases/download/v0.0.7/sbom-scorecard-linux-amd64
           chmod +x sbom-scorecard
-          mv sbom-scorecard /usr/local/bin/
+          sudo mv sbom-scorecard /usr/local/bin/sbom-scorecard
   
       - name: Evaluate SBOM Quality
         run: sbom-scorecard score sbom-cyclonedx.xml
