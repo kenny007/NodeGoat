@@ -15,8 +15,8 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Generate SBOM (CycloneDX format)
-        run: syft dir:. -o cyclonedx-json > sbom-cyclonedx.json
+      - name: Generate SBOM (CycloneDX format - XML)
+        run: syft dir:. -o cyclonedx-xml > sbom-cyclonedx.xml
 
       - name: Decode Private Key
         run: |
@@ -28,12 +28,12 @@ jobs:
           mv cyclonedx-linux-x64 cyclonedx-cli
           chmod +x cyclonedx-cli
       
-      - name: Sign SBOM (CycloneDX)
+      - name: Sign SBOM (CycloneDX XML)
         run: |
-          ./cyclonedx-cli sign bom sbom-cyclonedx.json --key-file=private.key
+          ./cyclonedx-cli sign bom sbom-cyclonedx.xml --key-file=private.key
 
       - name: Scan with Grype for Vulnerabilities
-        run: grype sbom:sbom-cyclonedx.json || echo "Vulnerabilities found, but continuing"
+        run: grype sbom:sbom-cyclonedx.xml || echo "Vulnerabilities found, but continuing"
 
       - name: Upload CycloneDX SBOM to Dependency-Track Test
         env:
@@ -47,10 +47,10 @@ jobs:
             -F "projectName=nodegoat" \
             -F "projectVersion=1.0.0" \
             -F "autoCreate=true" \
-            -F "bom=@sbom-cyclonedx.json"
+            -F "bom=@sbom-cyclonedx.xml"
 
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nodegoat-sbom
-          path: sbom-cyclonedx.json
+          path: sbom-cyclonedx.xml
