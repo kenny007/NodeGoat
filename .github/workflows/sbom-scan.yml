@@ -15,17 +15,25 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
+      - name: Download Previous SBOM (if exists)
+        uses: actions/download-artifact@v4
+        with:
+          name: nodegoat-sboms
+          path: previous_sbom
+        continue-on-error: true
+
       - name: Generate SBOMs (CycloneDX JSON & XML)
         run: |
           syft dir:. -o cyclonedx-json --catalogers all --scope all-layers > sbom-cyclonedx.json
           syft dir:. -o cyclonedx-xml --catalogers all --scope all-layers > sbom-cyclonedx.xml
 
-      - name: Download Previous SBOM Artifact (if exists)
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: nodegoat-sboms
-          path: previous_sbom
+      - name: Diff SBOMs (if previous exists)
+        run: |
+          if [ -f previous_sbom/sbom-cyclonedx.json ]; then
+            cyclonedx diff --input-files previous_sbom/sbom-cyclonedx.json sbom-cyclonedx.json --input-format json
+          else
+            echo "No previous SBOM to diff against."
+          fi
 
       - name: Diff SBOMs (if previous exists)
         run: |
